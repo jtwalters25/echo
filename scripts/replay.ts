@@ -1,23 +1,38 @@
 /**
  * Offline Replay CLI — `npm run replay`
  *
- * Leave-one-out replays the seeded ticket corpus and reports retrieval quality
+ * Leave-one-out replays the ticket corpus and reports retrieval quality
  * (recall@k, MRR), then compares the baseline retrieval depth against a candidate
  * one — a Netflix XP-style offline A/B on the ranker. Exits non-zero if recall@1
  * falls below a floor, so it doubles as a CI gate against ranker regressions.
  *
- * Runs entirely on vectors already stored in Supabase — no embedding calls.
+ * Runs from a committed embedded-corpus fixture (src/domain/echo/corpus.fixture
+ * .json) — no Supabase, no HF, no secrets. It therefore runs in CI. Refresh the
+ * fixture with `npm run export-corpus` whenever the corpus/model changes.
  */
-import { config } from "dotenv";
-config({ path: ".env.local" });
-
-import { writeFileSync } from "fs";
+import { writeFileSync, readFileSync } from "fs";
 import { join } from "path";
-import { loadCorpus } from "@/engine/store";
 import { replay, compareReplays } from "@/engine/eval/replay";
-import { baselineConfig } from "@/domain/echo/pipeline";
 import { REGISTRY_VERSION } from "@/domain/echo/tickets";
 import type { ReplayReport } from "@/engine/eval/types";
+import type { EngineConfig, RegistryEntry } from "@/engine/types";
+
+// Offline baseline config — no server-only imports (keeps CI pure).
+const baselineConfig: EngineConfig = {
+  embedModel: process.env.EMBED_MODEL ?? "sentence-transformers/all-mpnet-base-v2",
+  registryVersion: REGISTRY_VERSION,
+  k: 5,
+};
+
+function loadCorpusFixture(): RegistryEntry[] {
+  const path = join(process.cwd(), "src/domain/echo/corpus.fixture.json");
+  try {
+    return (JSON.parse(readFileSync(path, "utf8")).entries ?? []) as RegistryEntry[];
+  } catch {
+    console.error("no corpus.fixture.json — run `npm run export-corpus` first.");
+    process.exit(1);
+  }
+}
 
 const RECALL_AT_1_FLOOR = 0.8; // gate: ≥80% of tickets must retrieve a relevant neighbour first
 
@@ -32,11 +47,7 @@ function printReport(label: string, report: ReplayReport) {
 }
 
 async function main() {
-  const corpus = await loadCorpus(REGISTRY_VERSION);
-  if (corpus.length === 0) {
-    console.error(`no corpus for ${REGISTRY_VERSION} — run \`npm run seed\` first.`);
-    process.exit(1);
-  }
+  const corpus = loadCorpusFixture();
 
   // Baseline: shipped retrieval depth.
   const baseline = replay(baselineConfig, corpus);
