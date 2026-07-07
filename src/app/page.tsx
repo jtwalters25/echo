@@ -6,6 +6,7 @@ import type { Confidence, EchoResult } from "@/domain/echo/rank";
 import { DEFAULT_THRESHOLDS } from "@/domain/echo/rank";
 import { EXAMPLES } from "@/domain/echo/examples";
 import { ConfidenceScale, SimilarityBar } from "@/components/retrieval-viz";
+import { HowItWorks } from "@/components/how-it-works";
 import fixtures from "@/domain/echo/fixtures.json";
 import evalReport from "@/domain/echo/eval-report.json";
 
@@ -167,6 +168,8 @@ export default function Home() {
           )}
         </section>
       )}
+
+      <HowItWorks />
     </main>
   );
 }
