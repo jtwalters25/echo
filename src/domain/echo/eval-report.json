@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-07-07",
+  "registryVersion": "tickets-2026-07-06",
+  "corpus": {
+    "tickets": 9,
+    "resolutionGroups": 4
+  },
+  "baseline": {
+    "k": 5,
+    "recallAt1": 1,
+    "recallAtK": 1,
+    "mrr": 1
+  },
+  "candidate": {
+    "k": 3,
+    "recallAt1": 1,
+    "recallAtK": 1,
+    "mrr": 1
+  },
+  "gate": {
+    "metric": "recall@1",
+    "value": 1,
+    "floor": 0.8,
+    "pass": true
+  }
+}

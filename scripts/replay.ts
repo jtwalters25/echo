@@ -11,6 +11,8 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
+import { writeFileSync } from "fs";
+import { join } from "path";
 import { loadCorpus } from "@/engine/store";
 import { replay, compareReplays } from "@/engine/eval/replay";
 import { baselineConfig } from "@/domain/echo/pipeline";
@@ -58,8 +60,22 @@ async function main() {
 
   // Gate.
   const r1 = recallAt(baseline, 1);
-  console.log(`\ngate: recall@1 ${r1.toFixed(2)} vs floor ${RECALL_AT_1_FLOOR} → ${r1 >= RECALL_AT_1_FLOOR ? "PASS ✓" : "FAIL ✗"}`);
-  process.exit(r1 >= RECALL_AT_1_FLOOR ? 0 : 1);
+  const pass = r1 >= RECALL_AT_1_FLOOR;
+
+  // Panel-facing report — committed and rendered at /eval (no DB call on page load).
+  const groups = new Set(corpus.map((e) => e.label)).size;
+  const report = {
+    generatedAt: new Date().toISOString().slice(0, 10),
+    registryVersion: REGISTRY_VERSION,
+    corpus: { tickets: corpus.length, resolutionGroups: groups },
+    baseline: { k: baseline.config.k, recallAt1: recallAt(baseline, 1), recallAtK: baseline.recallAtK, mrr: baseline.mrr },
+    candidate: { k: candidate.config.k, recallAt1: recallAt(candidate, 1), recallAtK: candidate.recallAtK, mrr: candidate.mrr },
+    gate: { metric: "recall@1", value: r1, floor: RECALL_AT_1_FLOOR, pass },
+  };
+  writeFileSync(join(process.cwd(), "src/domain/echo/eval-report.json"), JSON.stringify(report, null, 2) + "\n");
+
+  console.log(`\ngate: recall@1 ${r1.toFixed(2)} vs floor ${RECALL_AT_1_FLOOR} → ${pass ? "PASS ✓" : "FAIL ✗"}`);
+  process.exit(pass ? 0 : 1);
 }
 
 main().catch((e) => {

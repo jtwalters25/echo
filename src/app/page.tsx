@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Confidence, EchoResult } from "@/domain/echo/rank";
 import { EXAMPLES } from "@/domain/echo/examples";
 import fixtures from "@/domain/echo/fixtures.json";
+import evalReport from "@/domain/echo/eval-report.json";
 
 const BAND: Record<Confidence, { label: string; style: string }> = {
   SEEN_BEFORE: { label: "Seen before", style: "bg-teal-100 text-teal-800 border-teal-300" },
@@ -63,6 +65,21 @@ export default function Home() {
         Paste an incoming ticket. Echo finds the most similar <span className="font-medium">resolved</span> tickets
         and shows how they were fixed — so you don&apos;t solve the same problem twice.
       </p>
+
+      {/* Ranker-quality strip — the eval story, on screen. */}
+      <Link
+        href="/eval"
+        className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-600 hover:border-teal-400"
+      >
+        <span className="font-medium text-neutral-800">Ranker quality</span>
+        <span>recall@1 <b className="tabular-nums">{evalReport.baseline.recallAt1.toFixed(2)}</b></span>
+        <span>MRR <b className="tabular-nums">{evalReport.baseline.mrr.toFixed(2)}</b></span>
+        <span>{evalReport.corpus.tickets} tickets</span>
+        <span className={evalReport.gate.pass ? "text-teal-700" : "text-red-600"}>
+          gate {evalReport.gate.pass ? "PASS" : "FAIL"}
+        </span>
+        <span className="ml-auto text-teal-700">evaluated offline →</span>
+      </Link>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
         <span className="text-sm text-neutral-500">Try an example:</span>
