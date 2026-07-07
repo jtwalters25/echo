@@ -49,7 +49,7 @@ shipping), two expressions.
 - [ ] 1. Engine slice runs: paste → embed → match → rank (prove via script)
 - [ ] 2. `npm run seed` populates the ticket registry in Supabase (`echo` schema)
 - [ ] 3. UI: paste ticket → similar tickets + resolutions  *(scaffolded)*
-- [ ] 4. Replay harness: wire `npm run replay` over the seeded corpus, report recall@k / MRR
+- [x] 4. Replay harness: `npm run replay` over the seeded corpus, real recall@k / MRR + CI gate
 - [ ] 5. Grow the corpus + tune k / thresholds against replay metrics
 - [ ] 6. (stretch) Interleaving two rankers; LLM-drafted "resolution, adapted to this ticket"
 

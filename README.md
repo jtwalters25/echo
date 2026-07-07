@@ -21,8 +21,19 @@ behind two seams (**segmenter**, **registry**) plus a **rank** step.
 
 Every resolved ticket carries a resolution group, so ground truth is free. `npm run replay`
 leave-one-out replays the corpus and reports **recall@k** and **MRR** — a Netflix XP-style
-offline A/B on the ranker. Swap the embedding model or `k`, re-run, compare; wire it into CI
-to block a ranker change that regresses retrieval quality.
+offline A/B on the ranker. Swap the embedding model or `k`, re-run, compare; the script exits
+non-zero if recall@1 drops below a floor, so it doubles as a CI gate against ranker regressions.
+
+Current corpus scores **recall@1 1.00 · recall@5 1.00 · MRR 1.00** over 9 tickets — every
+ticket retrieves a same-resolution neighbour first. It runs entirely on vectors already in
+Supabase (no embedding calls), and prints a per-ticket rank table plus a baseline-vs-candidate
+(k=5 vs k=3) comparison:
+
+```
+$ npm run replay
+▓ baseline  (k=5, n=9)   recall@1 1.00   recall@5 1.00   MRR 1.000
+gate: recall@1 1.00 vs floor 0.8 → PASS ✓
+```
 
 ## Tech
 

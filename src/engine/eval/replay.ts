@@ -63,18 +63,3 @@ export function compareReplays(baseline: ReplayReport, candidate: ReplayReport) 
     improved: candidate.recallAtK >= baseline.recallAtK && candidate.mrr >= baseline.mrr,
   };
 }
-
-/**
- * CLI entry: `npm run replay`.
- * TODO(echo): load the embedded corpus (from tickets.ts via seed, or a fixture),
- * run replay() for baseline + candidate config, print recall@k / MRR, and
- * process.exit(1) if the candidate regresses — so CI blocks a bad ranker change.
- */
-async function main() {
-  console.log("replay: load embedded corpus, then replay() baseline vs candidate → recall@k / MRR.");
-  console.log("On regression, process.exit(1) so CI blocks the ranker change.");
-}
-
-if (process.argv[1] && process.argv[1].endsWith("replay.ts")) {
-  main();
-}
