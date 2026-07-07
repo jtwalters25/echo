@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Confidence, EchoResult } from "@/domain/echo/rank";
+import { DEFAULT_THRESHOLDS } from "@/domain/echo/rank";
 import { EXAMPLES } from "@/domain/echo/examples";
+import { ConfidenceScale, SimilarityBar } from "@/components/retrieval-viz";
 import fixtures from "@/domain/echo/fixtures.json";
 import evalReport from "@/domain/echo/eval-report.json";
 
@@ -123,25 +125,39 @@ export default function Home() {
             <span className={`rounded-md border px-3 py-1 text-sm font-semibold ${BAND[result.confidence].style}`}>
               {BAND[result.confidence].label}
             </span>
-            <span className="text-sm text-neutral-500">
-              top similarity {result.topSimilarity.toFixed(2)} · {result.matches.length} matches
-            </span>
+            <span className="text-sm text-neutral-500">{result.matches.length} matches</span>
+          </div>
+
+          {/* Why this band fired — the score against the calibrated cut-lines. */}
+          <div className="mt-4 rounded-lg border border-neutral-200 bg-white p-4">
+            <ConfidenceScale
+              value={result.topSimilarity}
+              thresholds={DEFAULT_THRESHOLDS}
+              confidence={result.confidence}
+            />
           </div>
 
           {result.matches.length === 0 ? (
             <p className="mt-6 text-sm text-neutral-500">
-              No sufficiently similar past ticket — this may be a genuinely new issue.
+              No past ticket cleared the similarity floor — likely a genuinely new issue.
             </p>
           ) : (
             <ul className="mt-6 space-y-4">
               {result.matches.map((m) => (
                 <li key={m.ticketId} className="rounded-lg border border-neutral-200 bg-white p-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-3">
                     <span className="text-sm font-medium text-neutral-800">{m.title}</span>
-                    <span className="text-xs text-neutral-500">{m.similarity.toFixed(2)} cosine</span>
+                    {m.resolution && (
+                      <span className="shrink-0 rounded bg-neutral-100 px-2 py-0.5 font-mono text-[10px] text-neutral-500">
+                        {m.resolution.id}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-2">
+                    <SimilarityBar value={m.similarity} />
                   </div>
                   {m.resolution && (
-                    <p className="mt-2 border-l-2 border-teal-200 pl-3 text-sm text-neutral-600">
+                    <p className="mt-3 border-l-2 border-teal-200 pl-3 text-sm text-neutral-600">
                       <span className="font-medium text-teal-700">Resolution:</span> {m.resolution.summary}
                     </p>
                   )}
