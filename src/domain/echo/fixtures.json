@@ -1,1 +1,64 @@
-{}
+{
+  "reset-paraphrase": {
+    "confidence": "SEEN_BEFORE",
+    "topSimilarity": 0.9076720586214,
+    "matches": [
+      {
+        "ticketId": "t-1001",
+        "title": "Didn't get the password reset email",
+        "similarity": 0.9076720586214,
+        "resolution": {
+          "id": "reset-email-spf",
+          "summary": "Password-reset emails were landing in spam due to a missing SPF record. Added the provider to the domain's SPF TXT record; deliverability restored within an hour."
+        }
+      },
+      {
+        "ticketId": "t-1002",
+        "title": "Reset link never arrives",
+        "similarity": 0.733741380758843,
+        "resolution": {
+          "id": "reset-email-spf",
+          "summary": "Password-reset emails were landing in spam due to a missing SPF record. Added the provider to the domain's SPF TXT record; deliverability restored within an hour."
+        }
+      },
+      {
+        "ticketId": "t-1003",
+        "title": "Forgot-password emails going to junk",
+        "similarity": 0.673032422481036,
+        "resolution": {
+          "id": "reset-email-spf",
+          "summary": "Password-reset emails were landing in spam due to a missing SPF record. Added the provider to the domain's SPF TXT record; deliverability restored within an hour."
+        }
+      }
+    ]
+  },
+  "signin-similar": {
+    "confidence": "SIMILAR",
+    "topSimilarity": 0.566935207430411,
+    "matches": [
+      {
+        "ticketId": "t-1010",
+        "title": "SSO login fails randomly",
+        "similarity": 0.566935207430411,
+        "resolution": {
+          "id": "oauth-clock-skew",
+          "summary": "SSO logins failed intermittently because the auth server's clock had drifted. Re-enabled NTP sync on the node; token `iat`/`exp` validation passed again."
+        }
+      },
+      {
+        "ticketId": "t-1011",
+        "title": "Intermittent 'token not yet valid'",
+        "similarity": 0.557531595230107,
+        "resolution": {
+          "id": "oauth-clock-skew",
+          "summary": "SSO logins failed intermittently because the auth server's clock had drifted. Re-enabled NTP sync on the node; token `iat`/`exp` validation passed again."
+        }
+      }
+    ]
+  },
+  "darkmode-novel": {
+    "confidence": "NOVEL",
+    "topSimilarity": 0.281001167357038,
+    "matches": []
+  }
+}

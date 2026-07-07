@@ -30,7 +30,12 @@ export interface RankThresholds {
   similar: number; // ≥ this ⇒ related, worth showing
 }
 
-export const DEFAULT_THRESHOLDS: RankThresholds = { seenBefore: 0.82, similar: 0.6 };
+// Calibrated against the seed corpus + demo probes (all-mpnet-base-v2):
+//   ~0.85+  near-duplicate ticket      → SEEN_BEFORE
+//   ~0.5–0.82  same topic, distinct    → SIMILAR   (e.g. a paraphrased SSO issue ≈0.57)
+//   <0.5   unrelated                   → NOVEL     (e.g. a dark-mode UI bug ≈0.28)
+// The replay harness (npm run replay) makes this tuning systematic.
+export const DEFAULT_THRESHOLDS: RankThresholds = { seenBefore: 0.82, similar: 0.5 };
 
 export function rank(matches: Match[], thresholds = DEFAULT_THRESHOLDS): EchoResult {
   const sorted = [...matches].sort((a, b) => b.similarity - a.similarity);

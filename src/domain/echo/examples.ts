@@ -25,10 +25,10 @@ export const EXAMPLES: Example[] = [
     body: "I've requested a password reset several times and the email never lands in my inbox — not even in the spam folder. Can't get back into my account.",
   },
   {
-    id: "export-adjacent",
+    id: "signin-similar",
     expected: "SIMILAR",
-    title: "Downloading the big report is really slow",
-    body: "When I try to pull the full monthly customer report it takes forever and sometimes just fails partway through.",
+    title: "Google sign-in sometimes rejects me",
+    body: "Every so often when I use the company Google login it tells me my session isn't valid, and then a few minutes later the exact same login works again.",
   },
   {
     id: "darkmode-novel",

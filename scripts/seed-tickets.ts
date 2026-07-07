@@ -2,7 +2,8 @@
  * Seed the registry: embed every resolved ticket and upsert it.
  * Run once after schema.sql:  npm run seed
  */
-import "dotenv/config";
+import { config } from "dotenv";
+config({ path: ".env.local" });
 import { embedText } from "@/engine/embed";
 import { upsertEntries } from "@/engine/store";
 import { SEED_TICKETS, REGISTRY_VERSION } from "@/domain/echo/tickets";
