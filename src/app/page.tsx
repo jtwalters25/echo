@@ -10,10 +10,11 @@ import { HowItWorks } from "@/components/how-it-works";
 import fixtures from "@/domain/echo/fixtures.json";
 import evalReport from "@/domain/echo/eval-report.json";
 
-const BAND: Record<Confidence, { label: string; style: string }> = {
-  SEEN_BEFORE: { label: "Seen before", style: "bg-teal-100 text-teal-800 border-teal-300" },
-  SIMILAR: { label: "Similar tickets found", style: "bg-amber-100 text-amber-800 border-amber-300" },
-  NOVEL: { label: "Looks novel", style: "bg-neutral-100 text-neutral-700 border-neutral-300" },
+/** Confidence → brutalist swatch. mint=near-dup, acid=related, slate=unrelated. */
+const BAND: Record<Confidence, { label: string; bg: string; fg: string }> = {
+  SEEN_BEFORE: { label: "Seen before", bg: "bg-seen", fg: "text-ink" },
+  SIMILAR: { label: "Similar tickets found", bg: "bg-similar", fg: "text-ink" },
+  NOVEL: { label: "Looks novel", bg: "bg-novel", fg: "text-ink" },
 };
 
 const FIXTURES = fixtures as Record<string, EchoResult>;
@@ -62,104 +63,128 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="text-3xl font-semibold tracking-tight">Echo</h1>
-      <p className="mt-2 text-neutral-600">
-        Paste an incoming ticket. Echo finds the most similar <span className="font-medium">resolved</span> tickets
-        and shows how they were fixed — so you don&apos;t solve the same problem twice.
-      </p>
+    <main className="mx-auto max-w-4xl px-5 py-10">
+      {/* ── Masthead ─────────────────────────────────────────── */}
+      <header className="brutal-box shadow-brutal-lg">
+        <div className="flex items-center justify-between border-b-3 border-ink bg-azure px-5 py-3">
+          <span className="font-mono text-2xl font-bold uppercase tracking-tighter text-white">
+            ◗ Echo
+          </span>
+          <span className="brutal-tag border-white bg-acid text-ink">resolution·finder</span>
+        </div>
+        <p className="px-5 py-4 text-lg font-medium leading-snug">
+          Paste an incoming ticket. Echo retrieves the most similar{" "}
+          <span className="underline decoration-azure decoration-2">resolved</span> tickets and how
+          they were fixed — so you don&apos;t solve the same problem twice.
+        </p>
+      </header>
 
-      {/* Ranker-quality strip — the eval story, on screen. */}
+      {/* ── Ranker-quality strip — the eval story, on screen ── */}
       <Link
         href="/eval"
-        className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-600 hover:border-teal-400"
+        className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 border-3 border-ink bg-white px-4 py-2 font-mono text-sm shadow-brutal-sm transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal"
       >
-        <span className="font-medium text-neutral-800">Ranker quality</span>
+        <span className="font-bold uppercase tracking-widest text-ink/70">Ranker quality</span>
         <span>recall@1 <b className="tabular-nums">{evalReport.baseline.recallAt1.toFixed(2)}</b></span>
         <span>MRR <b className="tabular-nums">{evalReport.baseline.mrr.toFixed(2)}</b></span>
         <span>{evalReport.corpus.tickets} tickets</span>
-        <span className={evalReport.gate.pass ? "text-teal-700" : "text-red-600"}>
+        <span className={`px-1.5 ${evalReport.gate.pass ? "bg-seen" : "bg-azure text-white"}`}>
           gate {evalReport.gate.pass ? "PASS" : "FAIL"}
         </span>
-        <span className="ml-auto text-teal-700">evaluated offline →</span>
+        <span className="ml-auto text-azure">evaluated offline →</span>
       </Link>
 
-      <div className="mt-6 flex flex-wrap items-center gap-2">
-        <span className="text-sm text-neutral-500">Try an example:</span>
+      {/* ── Examples ─────────────────────────────────────────── */}
+      <div className="mt-8 flex flex-wrap items-center gap-3">
+        <span className="font-mono text-xs font-bold uppercase tracking-widest text-ink/60">Try →</span>
         {EXAMPLES.map((ex) => (
           <button
             key={ex.id}
             onClick={() => loadExample(ex.id)}
-            className="rounded-full border border-neutral-300 bg-white px-3 py-1 text-sm text-neutral-700 hover:border-teal-400 hover:text-teal-700"
+            className="border-3 border-ink bg-white px-3 py-1.5 font-mono text-sm font-bold shadow-brutal-sm transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal active:translate-x-0 active:translate-y-0 active:shadow-none"
           >
             {ex.title}
+            <span className={`ml-2 inline-block h-2.5 w-2.5 border border-ink ${BAND[ex.expected].bg}`} />
           </button>
         ))}
       </div>
 
+      {/* ── Input ────────────────────────────────────────────── */}
       <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Ticket title…"
-        className="mt-3 w-full rounded-lg border border-neutral-300 p-3 text-sm focus:border-teal-500 focus:outline-none"
+        className="mt-4 w-full border-3 border-ink bg-white p-3 font-mono text-sm shadow-brutal outline-none placeholder:text-ink/40 focus:shadow-brutal-azure"
       />
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder="Describe the issue…"
-        className="mt-3 h-40 w-full rounded-lg border border-neutral-300 p-4 text-sm focus:border-teal-500 focus:outline-none"
+        className="mt-3 h-40 w-full resize-none border-3 border-ink bg-white p-4 font-mono text-sm shadow-brutal outline-none placeholder:text-ink/40 focus:shadow-brutal-azure"
       />
 
-      <button
-        onClick={() => run()}
-        disabled={loading || (title + body).trim().length < 10}
-        className="mt-4 rounded-lg bg-teal-600 px-5 py-2.5 font-medium text-white disabled:opacity-40"
-      >
-        {loading ? "Searching…" : "Find similar tickets"}
-      </button>
+      <div className="mt-5 flex items-center gap-4">
+        <button
+          onClick={() => run()}
+          disabled={loading || (title + body).trim().length < 10}
+          className="border-3 border-ink bg-azure px-6 py-3 font-mono text-base font-bold uppercase tracking-wide text-white shadow-brutal transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-lg active:translate-x-0 active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-brutal"
+        >
+          {loading ? "Searching…" : "▶ Find similar tickets"}
+        </button>
+        {(title + body).trim().length > 0 && (title + body).trim().length < 10 && (
+          <span className="font-mono text-xs text-ink/50">min 10 chars</span>
+        )}
+      </div>
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="mt-6 border-3 border-ink bg-azure px-4 py-3 font-mono text-sm font-bold text-white shadow-brutal">
+          ✕ {error}
+        </div>
+      )}
 
+      {/* ── Result ───────────────────────────────────────────── */}
       {result && (
-        <section className="mt-8">
-          <div className="flex items-center gap-3">
-            <span className={`rounded-md border px-3 py-1 text-sm font-semibold ${BAND[result.confidence].style}`}>
-              {BAND[result.confidence].label}
-            </span>
-            <span className="text-sm text-neutral-500">{result.matches.length} matches</span>
-          </div>
-
-          {/* Why this band fired — the score against the calibrated cut-lines. */}
-          <div className="mt-4 rounded-lg border border-neutral-200 bg-white p-4">
-            <ConfidenceScale
-              value={result.topSimilarity}
-              thresholds={DEFAULT_THRESHOLDS}
-              confidence={result.confidence}
-            />
+        <section className="mt-10">
+          <div className="brutal-box shadow-brutal-lg">
+            <div className={`flex flex-wrap items-center justify-between gap-3 border-b-3 border-ink px-5 py-4 ${BAND[result.confidence].bg} ${BAND[result.confidence].fg}`}>
+              <span className="font-mono text-2xl font-bold uppercase tracking-tight">
+                {BAND[result.confidence].label}
+              </span>
+              <span className="font-mono text-xs font-bold uppercase tracking-widest opacity-70">
+                {result.matches.length} matches · top {result.topSimilarity.toFixed(2)}
+              </span>
+            </div>
+            {/* Why this band fired — score against the calibrated cut-lines. */}
+            <div className="px-5 py-4">
+              <ConfidenceScale
+                value={result.topSimilarity}
+                thresholds={DEFAULT_THRESHOLDS}
+                confidence={result.confidence}
+              />
+            </div>
           </div>
 
           {result.matches.length === 0 ? (
-            <p className="mt-6 text-sm text-neutral-500">
+            <p className="mt-6 border-3 border-ink bg-white p-4 font-mono text-sm text-ink/60 shadow-brutal">
               No past ticket cleared the similarity floor — likely a genuinely new issue.
             </p>
           ) : (
-            <ul className="mt-6 space-y-4">
+            <ul className="mt-6 space-y-5">
               {result.matches.map((m) => (
-                <li key={m.ticketId} className="rounded-lg border border-neutral-200 bg-white p-4">
+                <li key={m.ticketId} className="brutal-box p-4">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-medium text-neutral-800">{m.title}</span>
+                    <span className="text-sm font-bold">{m.title}</span>
                     {m.resolution && (
-                      <span className="shrink-0 rounded bg-neutral-100 px-2 py-0.5 font-mono text-[10px] text-neutral-500">
-                        {m.resolution.id}
-                      </span>
+                      <span className="brutal-tag border-2 bg-white px-1.5 py-0 text-[10px]">{m.resolution.id}</span>
                     )}
                   </div>
-                  <div className="mt-2">
+                  <div className="mt-3">
                     <SimilarityBar value={m.similarity} />
                   </div>
                   {m.resolution && (
-                    <p className="mt-3 border-l-2 border-teal-200 pl-3 text-sm text-neutral-600">
-                      <span className="font-medium text-teal-700">Resolution:</span> {m.resolution.summary}
+                    <p className="mt-3 border-3 border-ink bg-paper p-3 font-mono text-xs leading-relaxed text-ink/70">
+                      <span className="font-bold text-azure">resolution ▸ </span>
+                      {m.resolution.summary}
                     </p>
                   )}
                 </li>
@@ -170,6 +195,10 @@ export default function Home() {
       )}
 
       <HowItWorks />
+
+      <footer className="mt-16 border-t-3 border-ink pt-4 font-mono text-xs text-ink/50">
+        similarity engine · pgvector HNSW · offline replay eval · recall@k / MRR gate
+      </footer>
     </main>
   );
 }
