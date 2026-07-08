@@ -1,5 +1,7 @@
 # Echo
 
+[![eval-gate](https://github.com/jtwalters25/echo/actions/workflows/eval.yml/badge.svg)](https://github.com/jtwalters25/echo/actions/workflows/eval.yml)
+
 **Ticket dedup & resolution finder.** Paste an incoming support ticket; Echo finds the most
 similar **resolved** tickets and surfaces how they were fixed — so your team doesn't solve
 the same problem twice.
