@@ -58,5 +58,16 @@ npm run dev                  # http://localhost:3000
 
 ## Status
 
-Scaffold stage — engine (copied from Clause + trimmed), Echo seams, rank, pipeline, API, and
-UI are in place. Build order tracked in [`PLAN.md`](./PLAN.md).
+**Core pipeline and CI-gating evaluation are complete** — not a scaffold. The engine, Echo
+seams (segmenter, registry), rank step, `search()` pipeline, `/api/search` route, and UI are
+built and typecheck clean. The offline replay is a real merge gate: `npm run replay` leave-one-out
+replays the corpus, reports recall@k / MRR, and **exits non-zero when recall@1 falls below its
+floor (0.8)**; `.github/workflows/eval.yml` runs it plus `tsc --noEmit` on every push and PR, with
+no secrets, so a ranker regression blocks the merge.
+
+The real limitation is **corpus size, not completeness**: n=9 resolved tickets across a few
+resolution groups. The perfect scores (recall@1/@5 1.00, MRR 1.00) reflect that small,
+well-separated set — they're evidence the harness works, not a claim about production accuracy.
+**The artifact here is the harness — the pipeline and the CI-gating eval loop — rather than a
+tuned model.** Grow the corpus and the same gate keeps the ranker honest. Build order tracked in
+[`PLAN.md`](./PLAN.md).
